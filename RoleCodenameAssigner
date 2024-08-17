@@ -1,0 +1,72 @@
+import java.util.*;
+public class RoleCodenameAssigner {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        List<String> roles = new ArrayList<>();
+        System.out.println("Enter roles (type 'done' when finished):");
+        while (true) {
+            String role = scanner.nextLine();
+            if (role.equalsIgnoreCase("done")) {
+                break;
+            }
+            roles.add(role);
+        }
+        List<String> codenames = new ArrayList<>();
+        System.out.println("Enter codenames (type 'done' when finished):");
+        while (true) {
+            String codename = scanner.nextLine();
+            if (codename.equalsIgnoreCase("done")) {
+                break;
+            }
+            codenames.add(codename);
+        }
+        if (roles.size() != codenames.size()) {
+            System.out.println("The number of roles and codenames must be the same.");
+            return;
+        }
+        Set<List<Integer>> usedNumberPairs = new HashSet<>();
+
+        Map<String, CodenameAssignment> assignments = new HashMap<>();
+
+        Random random = new Random();
+
+        for (int i = 0; i < codenames.size(); i++) {
+            String codename = codenames.get(i);
+            List<Integer> numberPair = generateUniqueNonSequentialPair(usedNumberPairs, random);
+            String role = roles.get(i);
+            assignments.put(codename, new CodenameAssignment(role, numberPair));
+        }
+        System.out.println("Codename Assignments:");
+        for (Map.Entry<String, CodenameAssignment> entry : assignments.entrySet()) {
+            System.out.println(entry.getKey() + " -> Role: " + entry.getValue().getRole() + ", Numbers: " + entry.getValue().getNumbers());
+        }
+    }
+    private static List<Integer> generateUniqueNonSequentialPair(Set<List<Integer>> usedPairs, Random random) {
+        List<Integer> pair;
+        do {
+            int num1 = random.nextInt(12) + 1;
+            int num2;
+            do {
+                num2 = random.nextInt(12) + 1;
+            } while (Math.abs(num1 - num2) == 1 || num1 == num2);  // Ensure the numbers are not sequential or the same
+            pair = Arrays.asList(num1, num2);
+            Collections.sort(pair);  // Sort the pair to avoid reverse duplicates
+        } while (usedPairs.contains(pair));
+        usedPairs.add(pair);
+        return pair;
+    }
+    static class CodenameAssignment {
+        private String role;
+        private List<Integer> numbers;
+        public CodenameAssignment(String role, List<Integer> numbers) {
+            this.role = role;
+            this.numbers = numbers;
+        }
+        public String getRole() {
+            return role;
+        }
+        public List<Integer> getNumbers() {
+            return numbers;
+        }
+    }
+}
